@@ -1,29 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, TextInput, Text, Button, ScrollView, StyleSheet, Picker } from 'react-native';
 import Modal from 'react-native-modal';
-const AddUser = () => {
+const AddVolunteer = () => {
+    const [volunteerNo,setVolunteerNo]=useState();
+    const [password,setPassword]=useState('');
   const [form, setForm] = useState({
     name: '',
-    fatherName: '',
-    motherName: '',
     presentAddress: '',
     permanentAddress: '',
     nid: '',
     gender: 'male',
     bloodGroup: 'A+',
     willingToDonate: 'no',
-    day: '', // Day of birth
-    month: '', // Month of birth
-    year: '', // Year of birth
+    age:'',
     email: '',
-    contactNo1: '',
-    contactNo2: '',
+    contactNo: '',
     campNo: '',
-    assignedVolunteer: '',
-    weight: '',
-    height: '',
-    healthIssues: '',
-    numberOfFamilyMember: '',
+    assignedTasks:[],
+    type:'Volunteer'
+
   });
   const [isModalVisible, setModalVisible] = useState(false);
   const handleInputChange = (field, value) => {
@@ -33,8 +28,21 @@ const AddUser = () => {
     setModalVisible(!isModalVisible);
   };
  
-
+useEffect(()=>{
+     fetch('http://localhost:5000/users/volunteers')
+     .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data=>{
+        setVolunteerNo(parseInt(data.length)+1001)
+    
+    })
+},[form])
   const handleSubmit = async() => {
+    
     
    try{
     await fetch('http://localhost:5000/users', {
@@ -42,7 +50,7 @@ const AddUser = () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({...form,age:new Date().getFullYear()-(parseInt(form.year, 10) || 0),type:'Occupants'}),
+      body: JSON.stringify({...form,volunteerId:volunteerNo,password:(volunteerNo+form.campNo+(Math.floor((Math.random()) * 89) + 11))}),
     }).then(response => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -55,26 +63,18 @@ const AddUser = () => {
       toggleModal();
       setForm({
         name: '',
-        fatherName: '',
-        motherName: '',
         presentAddress: '',
         permanentAddress: '',
         nid: '',
         gender: 'male',
         bloodGroup: 'A+',
         willingToDonate: 'no',
-        day: '', // Day of birth
-        month: '', // Month of birth
-        year: '', // Year of birth
+        age:'',
         email: '',
-        contactNo1: '',
-        contactNo2: '',
+        contactNo: '',
         campNo: '',
-        assignedVolunteer: '',
-        weight: '',
-        height: '',
-        healthIssues: '',
-        numberOfFamilyMember: '',
+        assignedTasks:[],
+        type:'Volunteer'
       })
     })
     .catch(error => {
@@ -91,7 +91,7 @@ const AddUser = () => {
       if(fieldName[i]>='A'&&fieldName[i]<='Z')newFieldName+=' ';
       newFieldName+=fieldName[i];
     }
-    console.log(newFieldName)
+    
     return newFieldName
   }
   
@@ -102,7 +102,8 @@ const AddUser = () => {
       {/* Input fields */}
       {Object.keys(form).map((field) => (
         <View key={field} style={styles.inputContainer}>
-          <Text style={styles.label}>{modifiedFieldName(field)}</Text>
+            {field!='assignedTasks'&&field!='type'&&<Text style={styles.label}>{modifiedFieldName(field)}</Text>}
+          
           {field === 'gender' && (
             <Picker
               selectedValue={form[field]}
@@ -147,12 +148,12 @@ const AddUser = () => {
               keyboardType="numeric"
             />
           )}  */}
-          {(field!='gender'&&field!='bloodGroup'&&field!='willingToDonate')&& (
+          {(field!='gender'&&field!='bloodGroup'&&field!='willingToDonate'&&field!='assignedTasks'&&field!='type')&& (
             <TextInput
               style={styles.input}
               value={form[field]}
               onChangeText={(value) => handleInputChange(field, value)}
-              placeholder={field === 'weight' || field === 'height' ? `Enter ${field} (lb/cm)` : ""}
+              
               keyboardType={field === 'weight' || field === 'height' || field === 'age' ? 'numeric' : 'default'}
             />
           )}
@@ -166,6 +167,8 @@ const AddUser = () => {
       <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
         <View style={styles.modalContainer}>
           <Text style={styles.modalText}>Form Submitted Successfully!</Text>
+          <Text style={styles.modalText}>Id: {volunteerNo}</Text>
+          <Text style={styles.modalText}>Password: {password}</Text>
           <Button title="OK" onPress={toggleModal} />
         </View>
       </Modal>
@@ -230,4 +233,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddUser;
+export default AddVolunteer;
