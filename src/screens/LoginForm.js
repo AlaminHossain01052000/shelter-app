@@ -1,36 +1,31 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
 const LoginForm = (props) => {
     const {navigation,setLoggedIn,loggedIn}=props;
-  const [userId, setUserId] = useState('');
-  const [password, setPassword] = useState('');
-// useEffect(()=>{
-//     const getStorageData=async()=>{
-//     const storedUserId = await AsyncStorage.getItem('userId');
-//       const storedPassword = await AsyncStorage.getItem('password');
-//       console.log(storedUserId)
-//     }
-//     getStorageData();
-    
-   
-// },[])
+
+  const [userId,setUserId]=useState('');
+  const [password,setPassword]=useState('');
   const handleSubmit = async() =>{
     // Add your login logic here
     
-    console.log('User ID:', userId);
+    if(parseInt(userId)===1&&parseInt(password)===123){
+      console.log("go admin go")
+      setLoggedIn(parseInt(userId))
+      navigation.push('Home');
+      return;
+    }
     try {
         await fetch(`http://localhost:5000/users/${userId}`)
     .then(res=>res.json())
-    .then(async(data)=>{
-        console.log(data)
-        if(data.password===password){
-            await AsyncStorage.setItem('userId', userId);
-            await AsyncStorage.setItem('password', password);
-            setLoggedIn(true)
+    .then((data)=>{
+        
+        if(data.password==password){
+         
+            setLoggedIn(parseInt(userId))
             navigation.push('Home')
-            console.log("Login Success")
+            
         }
     })
     } catch (error) {

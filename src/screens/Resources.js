@@ -26,8 +26,8 @@ const Resources = ({navigation}) => {
 
                 <View style={styles.resourceButtonsContainer}>
                     <IconButton title="Water" icon={faDroplet} color="#2ecc71" />
-                    <IconButton title="Food" icon={faBowlFood} color="#e74c3c" />
-                    <IconButton title="Medical" icon={faHouseMedical} color="#f39c12" />
+                    <IconButton title="Food" onPress={()=>navigation.push('FoodScreen')} icon={faBowlFood} color="#e74c3c" />
+                    <IconButton title="Medical" onPress={()=>navigation.push('MedicalScreen')} icon={faHouseMedical} color="#f39c12" />
                 </View>
             </View>
         </View>

@@ -1,29 +1,55 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
-const myTasks=[
-    { id: '1', title: 'Feed the animals', status: 'Pending' },
-    { id: '2', title: 'Clean the kennels', status: 'Pending' },
-    { id: '3', title: 'Walk the dogs', status: 'Done' },
-  ]
-const ShelterTasks = () => {
+
+const ShelterTasks = ({loggedIn}) => {
   const [tasks, setTasks] = useState([]);
 const [selectedTaskFilter,setSelectedTaskFilter]=useState('All')
 const [newStatus, setNewStatus] = useState('Pending');
-const volunteer_id=1004
-const updateTaskStatus = async () => {
+const [volunteerId,setVolunteerId]=useState(loggedIn);
+    useEffect(()=>{
+    setVolunteerId(loggedIn);
+    },[volunteerId,loggedIn])
+
+const fetchTasks=async()=>{
+  const tailParam=selectedTaskFilter==='All'?`${volunteerId}`:`${selectedTaskFilter}/${volunteerId}`
+    console.log(`http://localhost:5000/tasks/${tailParam}`)
+    try{
+      
+        await fetch(`http://localhost:5000/tasks/${tailParam}`)
+     .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data=>{
+        setTasks(data)
+    
+    })
+      
+      
+    }
+    catch(error){
+      console.log(error)
+    }
+}
+    
+const updateTaskStatus = async (taskId,taskStatus) => {
+ 
   try {
-    const response = await fetch(`http://localhost:5000/tasks/${volunteer_id}/${taskId}`, {
+    const response = await fetch(`http://localhost:5000/tasks/${taskId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        status: newStatus,
+        status: taskStatus,
       }),
     });
 
     if (response.ok) {
       console.log('Task status updated successfully');
+      fetchTasks();
       // Perform any additional actions after updating the status
     } else {
       console.error('Failed to update task status');
@@ -32,11 +58,7 @@ const updateTaskStatus = async () => {
     console.error('Error updating task status:', error);
   }
 };
-const handleTaskStatus=(id)=>{
-    console.log(tasks)
-    setTasks(myTasks.filter(task=>task.id===id?task.status==='Pending'?task.status='Done':task.status='Pending':task))
-    console.log(tasks)
-}
+
   const renderBlurEffect = (status) => {
     
     return status === 'Done' ? { opacity: 0.5 } : null;
@@ -51,14 +73,14 @@ const handleTaskStatus=(id)=>{
         item.status==='Pending'?
         <TouchableOpacity
         style={[styles.taskStatusButton, { backgroundColor: '#3498db' }]}
-        onPress={() => handleTaskStatus(item.id)}
+        onPress={() => updateTaskStatus(item._id,"Done")}
       >
         <Text style={styles.taskStatusText}>Pending</Text>
       </TouchableOpacity>
       :
       <TouchableOpacity
       style={[styles.taskStatusButton, { backgroundColor: '#2ecc71' }]}
-      onPress={() => handleTaskStatus(item.id)}
+      onPress={() => updateTaskStatus(item._id,"Pending")}
     >
       <Text style={styles.taskStatusText}>Done</Text>
     </TouchableOpacity>
@@ -68,22 +90,8 @@ const handleTaskStatus=(id)=>{
   );
 
   useEffect(()=>{
-    
-    switch (selectedTaskFilter) {
-        case 'All':
-            setTasks(myTasks)
-            break;
-        case 'Pending':
-            setTasks(myTasks.filter(task=>task.status==='Pending'))
-            break;
-        case 'Done':
-            setTasks(myTasks.filter(task=>task.status==='Done'))
-            break;
-    
-        default:
-            break;
-    }
-  },[selectedTaskFilter,tasks])
+    fetchTasks();
+  },[selectedTaskFilter,volunteerId])
 
   return (
     <View style={styles.container}>
@@ -107,12 +115,16 @@ const handleTaskStatus=(id)=>{
           <Text style={styles.filterButtonText}>All</Text>
         </TouchableOpacity>
       </View>
-      <FlatList
+      
+       
+        <FlatList
         data={tasks}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         renderItem={renderListItem}
         style={styles.taskList}
       />
+      
+      
     </View>
   );
 };

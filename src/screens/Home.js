@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, Button, ScrollView, TouchableOpacity } from 'react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faUserPlus, faUsers, faHandsHelping, faPlus, faCalendarCheck,faComment,faListCheck,faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faUserPlus, faUsers, faHandsHelping, faPlus, faCalendarCheck,faComment,faListCheck,faRightFromBracket, faBed } from '@fortawesome/free-solid-svg-icons';
 import IconButton from '../utils/IconButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 // export const IconButton = ({ title, onPress, icon, color }) => {
@@ -13,9 +13,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 //     </TouchableOpacity>
 //   );
 // };
-const Home = ({navigation,setLoggedIn }) => {
+const Home = ({navigation,setLoggedIn,loggedIn }) => {
+  const [userId,setUserId]=useState(-1);
+  useEffect(()=>{
+    
+    setUserId(loggedIn)
+  },[loggedIn])
   const handleLogout=async()=>{
-    setLoggedIn(false)
+    setLoggedIn(-1)
+    
     // await AsyncStorage.removeItem('userId');
     //   await AsyncStorage.removeItem('password');
     navigation.push('Login')
@@ -35,8 +41,9 @@ const Home = ({navigation,setLoggedIn }) => {
       <IconButton title="Add Patient" onPress={()=>navigation.push('AddDesease')} icon={faPlus} color="#e74c3c" />
       <IconButton title="Chat" onPress={()=>navigation.push('ChatScreen')} icon={faComment} color="#9b59b6" />
       <IconButton title="Tasks" onPress={()=>navigation.push('ShelterTasks')} icon={faListCheck} color="#27ae60" />
-      <IconButton title="Add Volunteer" onPress={()=>navigation.push('AddVolunteer')} icon={faListCheck} color="#27ae60" />
-      <IconButton title="Add Task" onPress={()=>navigation.push('AddTask')} icon={faListCheck} color="#27ae60" />
+      {userId===1&&<><IconButton title="Add Volunteer" onPress={()=>navigation.push('AddVolunteer')} icon={faListCheck} color="#e74c3c" />
+      <IconButton title="Add Task" onPress={()=>navigation.push('AddTask')} icon={faListCheck} color="#3498db" /></>}
+      <IconButton title="Patients"  onPress={()=>navigation.push('PatientScreen')} icon={faBed} color="#f39c12" />
       <IconButton title="Logout" onPress={handleLogout} icon={faRightFromBracket} color="#c0392b" />
       </View>
       

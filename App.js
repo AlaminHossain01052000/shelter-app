@@ -15,12 +15,16 @@ import AddVolunteer from './src/screens/AddVolunteer';
 import LoginForm from './src/screens/LoginForm';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AddTask from './src/screens/AddTask';
+import MedicalScreen from './src/screens/MedicalScreen';
+import FoodScreen from './src/screens/FoodScreen';
+import PatientScreen from './src/screens/PatientsScreen';
 
 
 
 const Stack = createNativeStackNavigator();
 const App = () => {
-  const [loggedIn,setLoggedIn]=useState(true);
+  const [loggedIn,setLoggedIn]=useState(1011);
+  console.log(loggedIn)
   // useEffect(()=>{
   //   const getStorageData=async()=>{
   //     const storedUserId =await  AsyncStorage.getItem('userId');
@@ -32,12 +36,12 @@ const App = () => {
   // },[])
   return (
     <NavigationContainer>
-    <Stack.Navigator initialRouteName={loggedIn?'Home':'Login'}>
+    <Stack.Navigator initialRouteName={loggedIn!=-1?'Home':'Login'}>
     <Stack.Screen
           name="Home"
           options={{ setLoggedIn: setLoggedIn }}
         >
-          {(props) => <Home {...props} setLoggedIn={setLoggedIn}/>}
+          {(props) => <Home {...props} setLoggedIn={setLoggedIn} loggedIn={loggedIn}/>}
         </Stack.Screen>
       <Stack.Screen name="Details" component={Details} />
       <Stack.Screen name="AddUser" component={AddUser} />
@@ -45,8 +49,18 @@ const App = () => {
       <Stack.Screen name="Resources" component={Resources} />
       <Stack.Screen name="AddResources" component={AddResources} />
       <Stack.Screen name="AddDesease" component={AddDesease} />
-      <Stack.Screen name="ChatScreen" component={ChatScreen} />
-      <Stack.Screen name="ShelterTasks" component={ShelterTasks} />
+      <Stack.Screen
+          name="ChatScreen"
+          options={{ loggedIn: loggedIn }}
+        >
+          {(props) => <ChatScreen {...props}  loggedIn={loggedIn}/>}
+        </Stack.Screen>
+      <Stack.Screen
+          name="ShelterTasks"
+          options={{ setLoggedIn: setLoggedIn }}
+        >
+          {(props) => <ShelterTasks {...props} setLoggedIn={setLoggedIn} loggedIn={loggedIn}/>}
+        </Stack.Screen>
       <Stack.Screen name="AddVolunteer" component={AddVolunteer} />
       <Stack.Screen name="AddTask" component={AddTask} />
       <Stack.Screen
@@ -55,6 +69,9 @@ const App = () => {
         >
           {(props) => <LoginForm {...props} setLoggedIn={setLoggedIn} loggedIn={loggedIn}/>}
         </Stack.Screen>
+        <Stack.Screen name="MedicalScreen" component={MedicalScreen} />
+        <Stack.Screen name="FoodScreen" component={FoodScreen} />
+        <Stack.Screen name="PatientScreen" component={PatientScreen} />
            {/* Render the component with additional props */}
      
     

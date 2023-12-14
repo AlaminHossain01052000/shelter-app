@@ -3,16 +3,44 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
 const AddDesease = () => {
-  const [occupantName, setOccupantName] = useState('John Doe');
-  const [occupantNo, setOccupantNo] = useState('123');
-  const [age, setAge] = useState('30');
-  const [bloodGroup, setBloodGroup] = useState('O+');
-  const [weight, setWeight] = useState('70');
-  const [bp, setBP] = useState('120/80');
-  const [diseaseDetails, setDiseaseDetails] = useState('Fever, Cough');
+  const [occupantName, setOccupantName] = useState('');
+  const [age, setAge] = useState('');
+  const [bloodGroup, setBloodGroup] = useState('');
+  const [weight, setWeight] = useState('');
+  const [bp, setBP] = useState('');
+  const [diseaseDetails, setDiseaseDetails] = useState('');
 
-  const onSubmit = () => {
+  const onSubmit = async() => {
     // Implement your logic for form submission here
+    try{
+      await fetch('http://localhost:5000/patients', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({occupantName,age,bloodGroup,weight,bp,diseaseDetails,status:'Pending'}),
+      }).then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        
+        setBP('')
+        setAge('')
+        setBloodGroup('')
+        setDiseaseDetails('')
+        setOccupantName('')
+        setWeight('')
+        
+      })
+      .catch(error => {
+        console.error('Error during POST request:', error.message);
+        // Handle errors here
+      });
+     }
+      catch(error){console.log(error)}
     console.log('Form submitted!');
     // You can send the form data to an API, update state, etc.
   };
@@ -28,12 +56,7 @@ const AddDesease = () => {
         onChangeText={(text) => setOccupantName(text)}
       />
 
-      <Text style={styles.label}>Occupant No:</Text>
-      <TextInput
-        style={styles.input}
-        value={occupantNo}
-        onChangeText={(text) => setOccupantNo(text)}
-      />
+      
 
       <Text style={styles.label}>Age:</Text>
       <TextInput

@@ -1,9 +1,9 @@
 // AddResourceScreen.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Button, TextInput, Picker, StyleSheet } from 'react-native';
 
 const AddResources = () => {
-  const [selectedType, setSelectedType] = useState('');
+  const [selectedType, setSelectedType] = useState('Water');
   const [amount, setAmount] = useState('');
   const [foodName, setFoodName] = useState('');
   const [foodAmount, setFoodAmount] = useState('');
@@ -17,7 +17,93 @@ const AddResources = () => {
   const handleMedicalTypeChange = (value) => setMedicalType(value);
   const handleMedicalNameChange = (value) => setMedicalName(value);
   const handleMedicalQuantityChange = (value) => setMedicalQuantity(value);
+const handleSubmit=async()=>{
+  switch(selectedType){
+    case 'Water':
+      try{
+        await fetch('http://localhost:5000/water', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({amount:parseInt(amount)}),
+        }).then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          
+          setAmount('');
+        })
+        .catch(error => {
+          console.error('Error during POST request:', error.message);
+          // Handle errors here
+        });
+       }
+        catch(error){console.log(error)}
+      break;
+    case 'Food':
+      try{
+        await fetch('http://localhost:5000/food', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({foodName,foodAmount:parseInt(foodAmount)}),
+        }).then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          
+          setFoodAmount('');
+          setFoodName('')
+        })
+        .catch(error => {
+          console.error('Error during POST request:', error.message);
+          // Handle errors here
+        });
+       }
+        catch(error){console.log(error)}
+        break;
+    case 'Medical':
+      try{
+        await fetch('http://localhost:5000/medical', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({medicalName,medicalType,medicalQuantity:parseInt(medicalQuantity)}),
+        }).then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          
+          setMedicalName('')
+          setMedicalQuantity('')
+          setMedicalType('')
+        })
+        .catch(error => {
+          console.error('Error during POST request:', error.message);
+          // Handle errors here
+        });
+       }
+        catch(error){console.log(error)}
+      break;
+      default:
+        
+        return null;
 
+
+  }
+}
   const renderForm = () => {
     switch (selectedType) {
       case 'Water':
@@ -31,22 +117,20 @@ const AddResources = () => {
               onChangeText={handleAmountChange}
               keyboardType="numeric"
             />
+            <Button title='submit' onPress={handleSubmit}></Button>
           </View>
         );
       case 'Food':
         return (
           <View style={styles.formContainer}>
             <Text style={styles.formLabel}>Food Form</Text>
-            <Picker
+            <TextInput
               style={styles.input}
-              selectedValue={foodName}
-              onValueChange={handleFoodNameChange}
-            >
-              <Picker.Item label="Select Food" value="" />
-              <Picker.Item label="Rice" value="Rice" />
-              <Picker.Item label="Puffed Rice" value="Puffed Rice" />
-              {/* Add more food options as needed */}
-            </Picker>
+              placeholder="Food Name"
+              value={foodName}
+              onChangeText={handleFoodNameChange}
+              
+            />
             <TextInput
               style={styles.input}
               placeholder="Food Amount"
@@ -54,6 +138,7 @@ const AddResources = () => {
               onChangeText={handleFoodAmountChange}
               keyboardType="numeric"
             />
+            <Button title='submit' onPress={handleSubmit}></Button>
           </View>
         );
       case 'Medical':
@@ -83,9 +168,11 @@ const AddResources = () => {
               onChangeText={handleMedicalQuantityChange}
               keyboardType="numeric"
             />
+            <Button title='submit' onPress={handleSubmit}></Button>
           </View>
         );
       default:
+        
         return null;
     }
   };

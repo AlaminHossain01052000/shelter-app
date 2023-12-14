@@ -1,64 +1,100 @@
-// // ChatScreen.js
-// import React, { useState, useEffect } from 'react';
-// import { GiftedChat } from 'react-native-gifted-chat';
-// import io from 'socket.io-client';
+import React, { useEffect, useState } from 'react';
+import { View, TextInput, Button, FlatList, Text } from 'react-native';
+import {faPaperPlane} from '@fortawesome/free-solid-svg-icons'
+import IconButton from '../utils/IconButton';
+const ChatScreen = ({ loggedIn }) => {
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [user,setUser]=useState({});
 
-// const socket = io('http://localhost:3000');
+  const fetchMessages = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/messages');
+      const data = await response.json();
+      // Sort messages by timestamp, latest at the bottom
+      const sortedMessages = data.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      setMessages(sortedMessages);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
+  };
+  const fetchUser = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/users/${loggedIn}`);
+      const data = await response.json();
+      setUser(data)
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
+  };
 
-// const ChatScreen = () => {
-//   const [messages, setMessages] = useState([]);
-//   const [users, setUsers] = useState([]);
+  const handleSend = async () => {
+    // Send the new message to the server
+    try {
+      const response = await fetch('http://localhost:5000/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: loggedIn,
+          message: newMessage,
+          timestamp: new Date().toISOString(),
+          user
+        }),
+      });
 
-//   useEffect(() => {
-//     // Listen for chat messages
-//     socket.on('chat message', (message) => {
-//       setMessages((prevMessages) => GiftedChat.append(prevMessages, message));
-//     });
+      if (response.status === 201) {
+        // Message sent successfully, fetch updated messages
+        fetchMessages();
+        // Clear the input field
+        setNewMessage('');
+      } else {
+        console.error('Failed to send message:', response.data);
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+  };
 
-//     // Listen for updated list of users
-//     socket.on('update users', (userList) => {
-//       setUsers(userList);
-//     });
+  useEffect(() => {
+    fetchMessages();
+  }, []);
+  useEffect(() => {
+    fetchUser();
+  }, [loggedIn]);
 
-//     return () => {
-//       // Clean up event listeners on component unmount
-//       socket.off('chat message');
-//       socket.off('update users');
-//     };
-//   }, []);
+  return (
+    <View style={{ flex: 1 }}>
+      <FlatList
+        data={messages}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
+          <View style={{ alignSelf: item.userId === loggedIn ? 'flex-end' : 'flex-start' }}>
+            <Text
+              style={{
+                padding: 8,
+                margin: 4,
+                backgroundColor: item.userId === loggedIn ? 'lightblue' : 'lightgray',
+                borderRadius: 8,
+              }}>
+              {item.message}
+            </Text>
+          </View>
+        )}
+      />
+      <View style={{ flexDirection: 'row', alignItems: 'center', padding: 8 }}>
+        <TextInput
+          style={{ flex: 1, borderWidth: 1, borderRadius: 8, padding: 8, marginRight: 8 }}
+          placeholder="Type a message"
+          value={newMessage}
+          onChangeText={(text) => setNewMessage(text)}
+        />
+        
+        <Button title="Send" onPress={handleSend} />
+      </View>
+    </View>
+  );
+};
 
-//   const onSend = (newMessages = []) => {
-//     // Emit the new message to the server
-//     socket.emit('chat message', newMessages[0].text);
-//   };
-
-//   return (
-//     <>
-//       <GiftedChat
-//         messages={messages}
-//         onSend={(newMessages) => onSend(newMessages)}
-//         user={{ _id: socket.id }} // Using socket.id as a unique identifier for the user
-//       />
-//       <UserList users={users} />
-//     </>
-//   );
-// };
-
-// const UserList = ({ users }) => (
-//   <div>
-//     <h3>Users Online:</h3>
-//     <ul>
-//       {users.map((user) => (
-//         <li key={user}>{user}</li>
-//       ))}
-//     </ul>
-//   </div>
-// );
-
-// export default ChatScreen;
-const ChatScreen=()=>{
-  return(
-    <View><Text>Hello</Text></View>
-  )
-}
 export default ChatScreen;
