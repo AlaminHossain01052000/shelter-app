@@ -67,7 +67,7 @@ const updateTaskStatus = async (taskId,taskStatus) => {
   const renderListItem = ({ item }) => (
 
     <View style={[styles.taskItem,renderBlurEffect(item.status)]}>
-      <Text style={styles.taskTitle}>{item.title}</Text>
+      <Text style={styles.taskTitle}>{item.taskDetails}</Text>
       {/* <Text style={styles.taskTitle}>{item.status}</Text> */}
       {
         item.status==='Pending'?

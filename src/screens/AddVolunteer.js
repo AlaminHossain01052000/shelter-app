@@ -29,6 +29,7 @@ const AddVolunteer = () => {
   };
  
 useEffect(()=>{
+  setVolunteerNo(13)
      fetch('http://localhost:5000/users/volunteers')
      .then(response => {
       if (!response.ok) {
@@ -43,14 +44,14 @@ useEffect(()=>{
 },[form])
   const handleSubmit = async() => {
     
-    
+    setPassword((volunteerNo+form.campNo+(Math.floor((Math.random()) * 89) + 11)))
    try{
     await fetch('http://localhost:5000/users', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({...form,volunteerId:volunteerNo,password:(volunteerNo+form.campNo+(Math.floor((Math.random()) * 89) + 11))}),
+      body: JSON.stringify({...form,volunteerId:volunteerNo,password}),
     }).then(response => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -97,7 +98,7 @@ useEffect(()=>{
   
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.heading}>Occupant Information</Text>
+      <Text style={styles.heading}>Volunteer Information</Text>
 
       {/* Input fields */}
       {Object.keys(form).map((field) => (

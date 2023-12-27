@@ -23,7 +23,7 @@ import PatientScreen from './src/screens/PatientsScreen';
 
 const Stack = createNativeStackNavigator();
 const App = () => {
-  const [loggedIn,setLoggedIn]=useState(1011);
+  const [loggedIn,setLoggedIn]=useState(-1);
   console.log(loggedIn)
   // useEffect(()=>{
   //   const getStorageData=async()=>{
